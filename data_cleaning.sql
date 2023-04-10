@@ -87,12 +87,6 @@ UPDATE PortfolioProject.dbo.NashvilleHousing
 SET PropertyCity = SUBSTRING(PropertyAddress, CHARINDEX(',', PropertyAddress) + 1 , LEN(PropertyAddress))
 
 
--- Dropping the PropertyAddress column.
-
-ALTER TABLE PortfolioProject.dbo.NashvilleHousing
-DROP COLUMN PropertyAddress
-
-
 -- Separating the Owner Address into three distinct columns. 
 
 SELECT
@@ -122,12 +116,6 @@ ADD OwnerState Nvarchar(255);
 
 UPDATE PortfolioProject.dbo.NashvilleHousing
 SET OwnerState = PARSENAME(REPLACE(OwnerAddress, ',', '.') , 1)
-
-
--- Dropping the OwnerAddress column.
-
-ALTER TABLE PortfolioProject.dbo.NashvilleHousing
-DROP COLUMN PropertyAddress
 
 
 -- Viewing the number of rows which have incorrect lables in 'Sold as Vacant' field. 
@@ -169,3 +157,28 @@ FROM
 PortfolioProject.dbo.NashvilleHousing
 GROUP BY SoldAsVacant
 ORDER BY SoldAsVacant
+
+
+-- This query is generating a row number for each group of rows that have the same values in the specified columns, based on the order of the UniqueID column. This will help to identify duplicate rows.
+
+WITH RowNumCTE AS(
+SELECT *,
+  ROW_NUMBER() OVER (
+  PARTITION BY ParcelID,
+             PropertyAddress, 
+             SalePrice, 
+             SaleDate,
+             LegalReference 
+             ORDER BY UniqueID
+             ) row_num
+
+FROM
+PortfolioProject.dbo.NashvilleHousing
+)
+
+
+-- Delete duplicate rows.
+
+DELETE
+FROM RowNumCTE
+WHERE row_num > 1

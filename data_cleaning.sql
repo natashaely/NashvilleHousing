@@ -182,3 +182,13 @@ PortfolioProject.dbo.NashvilleHousing
 DELETE
 FROM RowNumCTE
 WHERE row_num > 1
+
+
+-- Removing the columns that will not be relevant for this analysis such as OwnerAddress, TaxDistrict and PropertyAddress. 
+
+SELECT *
+FROM PortfolioProject.dbo.NashvilleHousing
+
+ALTER TABLE PortfolioProject.dbo.NashvilleHousing
+DROP COLUMN OwnerAddress, TaxDistrict, PropertyAddress
+
